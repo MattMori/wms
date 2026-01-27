@@ -2,6 +2,8 @@ package com.mori.wms.controller;
 
 import com.mori.wms.model.Rack;
 import com.mori.wms.repository.RackRepository;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/racks")
 @RequiredArgsConstructor
+@Tag(name = "Gestão de racks", description = "Criação de corredores, prateleiras e endereços físicos")
 public class RackController {
 
     private final RackRepository rackRepository;

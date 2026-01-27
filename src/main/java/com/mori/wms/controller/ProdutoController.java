@@ -2,6 +2,7 @@ package com.mori.wms.controller;
 
 import com.mori.wms.model.Produto;
 import com.mori.wms.repository.ProdutoRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController // Diz que essa classe recebe requisições JSON
 @RequestMapping("/api/produtos") // O endereço base (http://localhost:8080/api/produtos)
 @RequiredArgsConstructor // O Lombok cria o construtor para injetar o Repository
+@Tag(name = "Gestão de Produtos", description = "Criação e gerenciamento de produtos no sistema")    
 public class ProdutoController {
 
     private final ProdutoRepository produtoRepository;

@@ -33,9 +33,7 @@ public class EstoqueController {
         Produto produto = produtoRepository.findBySku(dto.getSku())
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado! SKU inválido: " + dto.getSku()));
 
-        // 2. Validar Rack (INTELIGÊNCIA NOVA AQUI 🧠)
-        // Se mandou a etiqueta (Ex: "R1-RK5-0"), busca por ela.
-        // Se não mandou etiqueta, tenta pelo ID antigo.
+        // 2. Validar Rack  
         Rack rack;
         
         if (dto.getCodigoEtiqueta() != null && !dto.getCodigoEtiqueta().isEmpty()) {
@@ -49,10 +47,7 @@ public class EstoqueController {
         }
 
         // 3. Verifica se já existe esse produto nesse rack para somar (Opcional, mas recomendado)
-        // Se você quiser que CRIE UMA LINHA NOVA sempre, mantenha seu código original.
-        // Se quiser SOMAR (Ex: Tinha 10, entrou 5, vira 15), me avisa que ajustamos aqui.
         
-        // Por enquanto, mantendo sua lógica de criar registro novo:
         Estoque estoque = new Estoque();
         estoque.setProduto(produto);
         estoque.setRack(rack);

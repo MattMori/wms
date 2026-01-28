@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "tb_racks", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"rua", "predio", "indice_vertical"})
+        @UniqueConstraint(columnNames = { "rua", "predio", "indice_vertical" })
 })
 public class Rack {
 
@@ -15,7 +15,7 @@ public class Rack {
     private Long id;
 
     @Column(name = "codigo_etiqueta", unique = true, nullable = false)
-    private String codigoEtiqueta; // O QR Code continua obrigatório (é a identidade dele)
+    private String codigoEtiqueta;
 
     @Column(nullable = false)
     private Integer rua;
@@ -25,8 +25,8 @@ public class Rack {
 
     @Column(name = "indice_vertical", nullable = false)
     private Integer indiceVertical;
-    @Column(name = "nome_nivel") 
-    private String nomeNivel; 
+    @Column(name = "nome_nivel")
+    private String nomeNivel;
 
     @Column(name = "tipo_local", nullable = false)
     private String tipoLocal; // "ARMAZENAGEM" ou "PICKING"

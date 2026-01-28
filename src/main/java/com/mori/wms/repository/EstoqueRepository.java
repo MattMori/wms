@@ -13,6 +13,6 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     // O Spring entende "RackId" e busca dentro do objeto Rack automaticamente
     List<Estoque> findByRackId(Long rackId);
 
-    // Busca onde está um produto específico (Ex: Onde tem Mouse?)
+    // Busca onde está um produto específico.
     List<Estoque> findByProdutoId(Long produtoId);
 }

@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Diz que essa classe recebe requisições JSON
-@RequestMapping("/api/produtos") // O endereço base (http://localhost:8080/api/produtos)
-@RequiredArgsConstructor // O Lombok cria o construtor para injetar o Repository
-@Tag(name = "Gestão de Produtos", description = "Criação e gerenciamento de produtos no sistema")    
+@RestController
+@RequestMapping("/api/produtos")
+@RequiredArgsConstructor
+@Tag(name = "Gestão de Produtos", description = "Criação e gerenciamento de produtos no sistema")
 public class ProdutoController {
 
     private final ProdutoRepository produtoRepository;
@@ -24,7 +24,7 @@ public class ProdutoController {
         return ResponseEntity.ok(novoProduto);
     }
 
-      // GET: Listar todos os produtos
+    // GET: Listar todos os produtos
     @GetMapping
     public ResponseEntity<List<Produto>> listarTodos() {
         return ResponseEntity.ok(produtoRepository.findAll());
@@ -38,7 +38,7 @@ public class ProdutoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-     // delete: Deletar um produto por ID
+    // delete: Deletar um produto por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (produtoRepository.existsById(id)) {

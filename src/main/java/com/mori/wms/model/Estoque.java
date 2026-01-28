@@ -13,9 +13,8 @@ public class Estoque {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // A MÁGICA ACONTECE AQUI:
     // Criamos um link direto com a tabela de Produtos
-    @ManyToOne 
+    @ManyToOne
     @JoinColumn(name = "produto_id", nullable = false)
     private Produto produto;
 
@@ -27,13 +26,11 @@ public class Estoque {
     @Column(nullable = false)
     private Integer quantidade;
 
-    // Opcionais importantes para WMS (futuro)
     private String lote; // Lote de fabricação
-    
+
     @Column(name = "data_entrada")
     private LocalDateTime dataEntrada;
 
-    // Isso faz a data ser preenchida sozinha na hora que cria
     @PrePersist
     public void prePersist() {
         this.dataEntrada = LocalDateTime.now();

@@ -31,6 +31,6 @@ public class Rack {
     @Column(name = "tipo_local", nullable = false)
     private String tipoLocal; // "ARMAZENAGEM" ou "PICKING"
 
-    @Column(name = "capacidade_max_caixas", nullable = false)
-    private Integer capacidadeMaxCaixas;
+    @Column(name = "capacidade_maxima_caixas", nullable = false)
+    private Integer capacidadeMaximaCaixas = 120;
 }

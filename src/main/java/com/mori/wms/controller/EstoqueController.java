@@ -5,10 +5,12 @@ import com.mori.wms.model.Estoque;
 import com.mori.wms.model.Movimentacao;
 import com.mori.wms.model.Produto;
 import com.mori.wms.model.Rack;
+import com.mori.wms.model.Usuario;
 import com.mori.wms.repository.EstoqueRepository;
 import com.mori.wms.repository.ProdutoRepository;
 import com.mori.wms.repository.RackRepository;
 import com.mori.wms.repository.UsuarioRepository;
+import com.mori.wms.repository.MovimentacaoRepository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,31 +22,34 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/estoque")
 @RequiredArgsConstructor
-@Tag(name = "Gestão de Racks", description = "Criação de corredores, prateleiras e endereços físicos")
-
+@Tag(name = "3. Operação Logística", description = "Entrada, Saída e Conferência")
 public class EstoqueController {
 
     private final EstoqueRepository estoqueRepository;
     private final ProdutoRepository produtoRepository;
     private final UsuarioRepository usuarioRepository;
     private final RackRepository rackRepository;
-    private final com.mori.wms.repository.MovimentacaoRepository movimentacaoRepository;
+    private final MovimentacaoRepository movimentacaoRepository;
 
-    // POST: Entrada de Mercadoria (Agora via SKU)
+    // ==========================================
+    // 1. ENTRADA (INBOUND)
+    // ==========================================
     @PostMapping("/entrada")
     public ResponseEntity<String> adicionarEstoque(@RequestBody MovimentacaoDTO dto) {
 
-        // 1. Validar Produto (Pelo SKU que o operador bipou)
+        // 1. Validar Usuário (AQUI ESTAVA O ERRO: Faltava buscar o operador)
+        Usuario operador = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado! ID inválido."));
+
+        // 2. Validar Produto
         Produto produto = produtoRepository.findBySku(dto.getSku())
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado! SKU inválido: " + dto.getSku()));
 
-        // 2. Validar Rack
+        // 3. Validar Rack
         Rack rack;
-
         if (dto.getCodigoEtiqueta() != null && !dto.getCodigoEtiqueta().isEmpty()) {
             rack = rackRepository.findByCodigoEtiqueta(dto.getCodigoEtiqueta())
-                    .orElseThrow(
-                            () -> new RuntimeException("Etiqueta de Rack não encontrada: " + dto.getCodigoEtiqueta()));
+                    .orElseThrow(() -> new RuntimeException("Etiqueta não encontrada: " + dto.getCodigoEtiqueta()));
         } else if (dto.getRackId() != null) {
             rack = rackRepository.findById(dto.getRackId())
                     .orElseThrow(() -> new RuntimeException("Rack ID não encontrado!"));
@@ -52,9 +57,7 @@ public class EstoqueController {
             throw new RuntimeException("Erro: Informe a Etiqueta do Rack ou o ID!");
         }
 
-        // 3. Verifica se já existe esse produto nesse rack para somar (Opcional, mas
-        // recomendado)
-
+        // 4. Salvar Estoque
         Estoque estoque = new Estoque();
         estoque.setProduto(produto);
         estoque.setRack(rack);
@@ -62,46 +65,67 @@ public class EstoqueController {
         estoque.setLote(dto.getLote());
 
         estoqueRepository.save(estoque);
+
+        // 5. Gravar Histórico (Agora a variável 'operador' existe!)
         Movimentacao log = new Movimentacao("ENTRADA", produto, rack, dto.getQuantidade(), operador);
         movimentacaoRepository.save(log);
+
         return ResponseEntity.ok("Sucesso! " + produto.getNome() + " guardado em: " + rack.getCodigoEtiqueta());
     }
 
-    // GET: Ver o que tem dentro de um Rack pelo ID do Rack
+    // ==========================================
+    // 2. CONSULTAS (GET)
+    // ==========================================
+
     @GetMapping("/rack/{rackId}")
     public ResponseEntity<List<Estoque>> verConteudoDoRack(@PathVariable Long rackId) {
         return ResponseEntity.ok(estoqueRepository.findByRackId(rackId));
     }
 
-    // 1. O "BIP" DO RACK (Consulta por etiqueta, não ID)
     @GetMapping("/bip-rack/{etiqueta}")
     public ResponseEntity<List<Estoque>> consultarPorBip(@PathVariable String etiqueta) {
-
-        // Traduz a etiqueta (ex: "R1-RK5-0") para o objeto Rack
         Rack rack = rackRepository.findByCodigoEtiqueta(etiqueta)
                 .orElseThrow(() -> new RuntimeException("Etiqueta de Rack não encontrada!"));
-
-        // Retorna tudo que tem dentro desse ID recuperado
         return ResponseEntity.ok(estoqueRepository.findByRackId(rack.getId()));
     }
 
-    // 2. A SAÍDA / BAIXA (Com lógica de apagar se zerar)
+    // ==========================================
+    // 3. SAÍDA (BAIXA)
+    // ==========================================
     @PostMapping("/saida")
     public ResponseEntity<String> registrarSaida(@RequestBody MovimentacaoDTO dto) {
 
-        // Busca o produto pelo SKU
+        // 1. Validar Usuário (AQUI TAMBÉM FALTAVA)
+        Usuario operador = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+
+        // 2. Validar Produto
         Produto produto = produtoRepository.findBySku(dto.getSku())
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + dto.getSku()));
 
-        List<Estoque> estoques = estoqueRepository.findByRackId(dto.getRackId());
+        // 3. Validar Rack (Precisamos do objeto Rack para o histórico)
+        Rack rack;
+        if (dto.getCodigoEtiqueta() != null && !dto.getCodigoEtiqueta().isEmpty()) {
+            rack = rackRepository.findByCodigoEtiqueta(dto.getCodigoEtiqueta())
+                    .orElseThrow(() -> new RuntimeException("Etiqueta não encontrada!"));
+        } else {
+            rack = rackRepository.findById(dto.getRackId())
+                    .orElseThrow(() -> new RuntimeException("Rack ID não encontrado!"));
+        }
 
-        // Filtra na memória qual linha tem o produto certo
+        // 4. Buscar Estoque Específico
+        List<Estoque> estoques = estoqueRepository.findByRackId(rack.getId());
+
         Estoque estoqueAlvo = estoques.stream()
                 .filter(e -> e.getProduto().getId().equals(produto.getId()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Esse produto não está neste rack!"));
 
-        // Lógica da Matemática
+        // 5. Gravar Histórico ANTES de deletar
+        Movimentacao log = new Movimentacao("SAIDA", produto, rack, dto.getQuantidade(), operador);
+        movimentacaoRepository.save(log);
+
+        // 6. Lógica da Matemática
         int novaQuantidade = estoqueAlvo.getQuantidade() - dto.getQuantidade();
 
         if (novaQuantidade < 0) {
@@ -110,14 +134,9 @@ public class EstoqueController {
             estoqueRepository.delete(estoqueAlvo);
             return ResponseEntity.ok("Produto zerou e foi removido do rack.");
         } else {
-            // Se sobrou algo, apenas atualiza
             estoqueAlvo.setQuantidade(novaQuantidade);
             estoqueRepository.save(estoqueAlvo);
-
-            Movimentacao log = new Movimentacao("SAIDA", produto, rack, dto.getQuantidade(), operador);
-            movimentacaoRepository.save(log);
             return ResponseEntity.ok("Quantidade atualizada. Restam: " + novaQuantidade);
         }
     }
-
 }

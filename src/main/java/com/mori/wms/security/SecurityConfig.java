@@ -24,20 +24,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    // Libera o Login e Registro (API)
-                    req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-                    req.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
+                    // 1. Libera Login e Cadastro
+                    req.requestMatchers("/auth/**").permitAll();
 
-                    // Libera o Swagger (Documentação)
+                    // 2. Libera Swagger
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
 
-                    // Libera o index e qualquer .html, .js ou .css
-                    req.requestMatchers("/", "/index.html", "/dashboard.html", "/*.html", "/*.js", "/*.css")
-                            .permitAll();
+                    // 3. LIBERAÇÃO GERAL DE ESTÁTICOS (Correção do 403)
+                    // Importante: Adicionamos "/error" e "/favicon.ico"
+                    req.requestMatchers("/", "/index.html", "/dashboard.html", "/error", "/favicon.ico").permitAll();
+                    req.requestMatchers("/*.html", "/*.css", "/*.js", "/*.png").permitAll();
 
+                    // O resto continua bloqueado
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

@@ -27,9 +27,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll(); // Login libera geral
-                    req.requestMatchers(HttpMethod.POST, "/auth/register").permitAll(); // Criar usuário tb (pra testar)
+                    // Libera o Login e Registro (API)
+                    req.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+                    req.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
+
+                    // Libera o Swagger (Documentação)
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+
+                    // Libera o index e qualquer .html, .js ou .css
+                    req.requestMatchers("/", "/index.html", "/dashboard.html", "/*.html", "/*.js", "/*.css")
+                            .permitAll();
 
                     req.anyRequest().authenticated();
                 })

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/relatorios")
 @RequiredArgsConstructor
-@Tag(name = "5. Relatórios Gerenciais", description = "KPIs Volumétricos (Caixas)")
+@Tag(name = "Relatórios Gerenciais", description = "KPIs Volumétricos (Caixas)")
 public class RelatorioController {
 
         private final RackRepository rackRepository;

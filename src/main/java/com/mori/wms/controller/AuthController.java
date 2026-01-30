@@ -22,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "0. Autenticação", description = "Login e Registro de Usuários")
+@Tag(name = "Autenticação", description = "Login e Registro de Usuários")
 public class AuthController {
 
     @Autowired

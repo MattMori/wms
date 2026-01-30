@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/estoque")
 @RequiredArgsConstructor
-@Tag(name = "3. Operação Logística", description = "Entrada, Saída e Conferência")
+@Tag(name = "Operação Logística", description = "Entrada, Saída e Conferência")
 public class EstoqueController {
 
     private final EstoqueRepository estoqueRepository;

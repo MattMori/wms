@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/produtos")
 @RequiredArgsConstructor
-@Tag(name = "1. Gestão de Produtos", description = "Catálogo mestre de SKUs e volumetria")
+@Tag(name = "Gestão de Produtos", description = "Catálogo mestre de SKUs e volumetria")
 public class ProdutoController {
 
     private final ProdutoRepository produtoRepository;
@@ -84,4 +84,4 @@ public class ProdutoController {
                     "Erro: Não é possível deletar este produto pois ele possui histórico de estoque ou movimentações.");
         }
     }
-}   
+}

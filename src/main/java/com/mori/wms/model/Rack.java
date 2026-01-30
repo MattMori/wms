@@ -32,5 +32,13 @@ public class Rack {
     private String tipoLocal; // "ARMAZENAGEM" ou "PICKING"
 
     @Column(name = "capacidade_maxima_caixas", nullable = false)
-    private Integer capacidadeMaximaCaixas = 120;
+    private Integer capacidadeMaxCaixas;
+
+    public Integer getCapacidadeMaxCaixas() {
+        return capacidadeMaxCaixas;
+    }
+
+    public void setCapacidadeMaxCaixas(Integer capacidadeMaxCaixas) {
+        this.capacidadeMaxCaixas = capacidadeMaxCaixas;
+    }
 }

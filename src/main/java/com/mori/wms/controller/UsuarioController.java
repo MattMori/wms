@@ -5,6 +5,8 @@ import com.mori.wms.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,9 +60,15 @@ public class UsuarioController {
 
     @GetMapping("/matricula/{matricula}")
     public ResponseEntity<Usuario> obterPorMatricula(@PathVariable String matricula) {
-        return usuarioRepository.findByMatricula(matricula)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+        // 1. Busca o objeto (agora retorna UserDetails ou null)
+        UserDetails userDetails = usuarioRepository.findByMatricula(matricula);
 
+        // 2. Verifica se existe e converte para Usuario
+        if (userDetails != null && userDetails instanceof Usuario) {
+            return ResponseEntity.ok((Usuario) userDetails);
+        }
+
+        // 3. Se for nulo, retorna 404 Not Found
+        return ResponseEntity.notFound().build();
+    }
 }

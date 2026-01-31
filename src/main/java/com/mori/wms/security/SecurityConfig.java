@@ -2,7 +2,6 @@ package com.mori.wms.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,7 +38,6 @@ public class SecurityConfig {
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
 
                     // 3. LIBERAÇÃO GERAL DE ESTÁTICOS (Correção do 403)
-                    // Importante: Adicionamos "/error" e "/favicon.ico"
                     req.requestMatchers("/", "/index.html", "/dashboard.html", "/error", "/favicon.ico").permitAll();
                     req.requestMatchers("/*.html", "/*.css", "/*.js", "/*.png").permitAll();
 

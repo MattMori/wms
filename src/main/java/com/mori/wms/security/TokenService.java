@@ -6,15 +6,15 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.mori.wms.model.Usuario;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
-
-    private String secret = "minha-senha-secreta-do-wms";
+    @Value("${api.security.token.secret}")
+    private String secret;
 
     public String gerarToken(Usuario usuario) {
         try {

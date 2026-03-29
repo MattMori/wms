@@ -31,19 +31,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    // 1. Libera Login e Cadastro
-                    req.requestMatchers("/auth/**").permitAll();
+                 req.requestMatchers("/auth/**").permitAll();
+                 req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+                 req.requestMatchers("/api/usuarios/**").permitAll(); 
+                 req.requestMatchers("/", "/index.html", "/dashboard.html", "/error", "/favicon.ico").permitAll();
+                req.requestMatchers("/*.html", "/*.css", "/*.js", "/*.png").permitAll();
 
-                    // 2. Libera Swagger
-                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-
-                    // 3. LIBERAÇÃO GERAL DE ESTÁTICOS (Correção do 403)
-                    req.requestMatchers("/", "/index.html", "/dashboard.html", "/error", "/favicon.ico").permitAll();
-                    req.requestMatchers("/*.html", "/*.css", "/*.js", "/*.png").permitAll();
-
-                    // O resto continua bloqueado
-                    req.anyRequest().authenticated();
-                })
+    req.anyRequest().authenticated();
+})
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -60,7 +55,10 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
+        
         CorsConfiguration configuration = new CorsConfiguration();
+        
         configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
@@ -69,4 +67,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    
 }

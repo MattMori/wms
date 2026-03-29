@@ -8,8 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
-    
-    // O Spring cria o SQL sozinho: SELECT * FROM produtos WHERE sku = ?
+    // Método para encontrar um produto pelo seu SKU, que é um identificador único.
     Optional<Produto> findBySku(String sku);
 
     

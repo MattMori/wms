@@ -1,24 +1,33 @@
-# --- Etapa 1: Construção (Build) ---
-# Usa uma imagem oficial do Maven com Java 21 para compilar
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Estágio 1: Build 
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Copia tudo do projeto para dentro do container
-COPY . .
+# 1. Cache de dependências 
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Faz o build (pula os testes para ser mais rápido e não dar erro de banco)
-RUN mvn clean package -DskipTests
+# 2. Copia o código e gera o artefato
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-# --- Etapa 2: Execução (Run) ---
-# Usa uma imagem leve do Java 21 apenas para rodar
-FROM eclipse-temurin:21-jdk
+# Estágio 2: Runtime 
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Pega o arquivo .jar gerado na etapa anterior
+# 1.Instalar certificados CA e garantir que o Java os reconheça
+# O pacote ca-certificates é essencial para o SSL do NeonDB.
+USER root
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+
+# 2. Segurança: Criar usuário comum (mantido seu padrão)
+RUN addgroup -S wmsgroup && adduser -S wmsuser -G wmsgroup
+USER wmsuser
+
+# 3. Copia apenas o .jar final do estágio de build
 COPY --from=build /app/target/*.jar app.jar
 
-# Libera a porta 8080
+# 4. Configurações de porta e execução
 EXPOSE 8080
 
-# Comando para iniciar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Adicionei a flag de DNS para evitar cache de IP do Neon, que muda com frequência (proxy)
+ENTRYPOINT ["java", "-Dsun.net.inetaddr.ttl=60", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

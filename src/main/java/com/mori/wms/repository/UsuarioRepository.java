@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+    // Método para encontrar um usuário pelo número de matrícula.
     UserDetails findByMatricula(String matricula);
 }

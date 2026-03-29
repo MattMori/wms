@@ -9,10 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface RackRepository extends JpaRepository<Rack, Long> {
-
+    // Método para encontrar racks por número da rua, facilitando a localização dentro do armazém.
     List<Rack> findByRua(Integer rua);
-    
     Optional<Rack> findByCodigoEtiqueta(String codigoEtiqueta); 
-
+    // Método para encontrar racks por número da rua e número do rack, permitindo uma busca mais específica.
     List<Rack> findByRuaAndRack(Integer rua, Integer rack);
 }

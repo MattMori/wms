@@ -26,8 +26,7 @@ public class Estoque {
     @Column(nullable = false)
     private Integer quantidade;
 
-    private String lote; // Lote de fabricação
-
+    private String lote; 
     @Column(name = "data_entrada")
     private LocalDateTime dataEntrada;
 

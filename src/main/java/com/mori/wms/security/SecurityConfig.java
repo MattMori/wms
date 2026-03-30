@@ -34,8 +34,6 @@ public class SecurityConfig {
                  req.requestMatchers("/auth/**").permitAll();
                  req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
                  req.requestMatchers("/api/usuarios/**").permitAll(); 
-                 req.requestMatchers("/", "/index.html", "/dashboard.html", "/error", "/favicon.ico").permitAll();
-                req.requestMatchers("/*.html", "/*.css", "/*.js", "/*.png").permitAll();
 
     req.anyRequest().authenticated();
 })
